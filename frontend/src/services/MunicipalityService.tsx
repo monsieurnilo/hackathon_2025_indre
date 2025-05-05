@@ -48,21 +48,6 @@ class MunicipalityService {
             throw new Error(`Failed to fetch municipality with code ${code}`);
         }
     }
-
-    /**
-     * Get municipalities by department code
-     * @param {string} departmentCode Department code (e.g., '36' for Indre)
-     * @returns {Promise<Municipality[]>} Array of Municipality objects
-     */
-    public static async getMunicipalitiesByDepartment(departmentCode: string): Promise<Municipality[]> {
-        try {
-            const response = await axios.get(`${this.baseUrl}/municipalities/department/${departmentCode}`);
-            return response.data;
-        } catch (error) {
-            console.error(`Error fetching municipalities for department ${departmentCode}:`, error);
-            throw new Error(`Failed to fetch municipalities for department ${departmentCode}`);
-        }
-    }
 }
 
 export default MunicipalityService;
