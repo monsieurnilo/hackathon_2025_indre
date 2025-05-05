@@ -3,6 +3,8 @@ import {Route, Routes, BrowserRouter as Router} from "react-router-dom";
 import {Home} from "./pages/Home.tsx";
 import {About} from "./pages/About.tsx";
 import {NotFound} from "./pages/NotFound.tsx";
+import 'leaflet/dist/leaflet.css'
+// import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css'
 
 function App() {
   return (
