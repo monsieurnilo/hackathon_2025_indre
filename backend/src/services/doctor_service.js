@@ -17,7 +17,7 @@ class DoctorService {
   static async getDoctorsByDepartment(departementCode) {
     try {
       const response = await axios.get(
-        `${this.BASE_URL}?q=periode(etatAdministratifEtablissement:A AND activitePrincipaleEtablissement:86.21Z) AND codeCommuneEtablissement:${departementCode}* &date=2025-05-05&champs=siret,codeCommuneEtablissement,coordonneeLambertAbscisseEtablissement,coordonneeLambertOrdonneeEtablissement`,
+        `${this.BASE_URL}?q=periode(etatAdministratifEtablissement:A AND activitePrincipaleEtablissement:86.21Z) AND codeCommuneEtablissement:${departementCode}* &date=2025-05-05&champs=siret,codeCommuneEtablissement,coordonneeLambertAbscisseEtablissement,coordonneeLambertOrdonneeEtablissement&nombre=1000`,
         {
           headers: {
             Accept: "application/json",
