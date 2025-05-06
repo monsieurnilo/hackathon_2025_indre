@@ -6,6 +6,7 @@ import {
   useMapEvents,
   Tooltip,
   Circle,
+  Popup,
 } from "react-leaflet";
 import type {
   Feature,
@@ -24,16 +25,15 @@ export function Home() {
   const geoJsonData: GeoJsonObject = indreGeoJson as GeoJsonObject;
   console.log(geoJsonData);
 
-  //City selected by the user on the map
   const [selectedCity, setSelectedCity] =
-    useState<GeoFeaturePropertiesType | null>(null);
-  //Position of the marker on the map
+      useState<GeoFeaturePropertiesType | null>(null);
   const [position, setPosition] = useState<L.LatLng | null>(null);
-
   const [doctors, setDoctors] = useState<BaseDoctor[]>([]);
   const [municipalitiesProperties, setMunicipalitiesProperties] = useState<
     { nbDoctors: number; code: string; density: number }[]
   >([]);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [doctorData, setDoctorData] = useState<Record<string, any>>({});
 
   useEffect(() => {
     fetchDoctors();
@@ -84,30 +84,85 @@ export function Home() {
     };
   }
 
+  async function fetchDoctorInfo(siret: string) {
+    if (doctorData[siret]) {
+      return doctorData[siret];
+    }
+
+    try {
+      const response = await fetch(`http://localhost:3000/api/doctors/${siret}`);
+      const data = await response.json();
+      setDoctorData((prev) => ({ ...prev, [siret]: data }));
+      return data;
+    } catch (error) {
+      console.error(`Erreur lors de la récupération des données pour le SIRET ${siret}:`, error);
+      throw error;
+    }
+  }
+
   function DoctorsPoints({ doctors }: { doctors: BaseDoctor[] }) {
+    async function handleCircleClick(siret: string) {
+      if (!doctorData[siret]) {
+        await fetchDoctorInfo(siret);
+      }
+    }
+
     return doctors.map((doctor) => {
       const lat = parseFloat(doctor.coordonnees?.x);
       const lng = parseFloat(doctor.coordonnees?.y);
 
       if (!isNaN(lat) && !isNaN(lng)) {
         proj4.defs(
-          "EPSG:2154",
-          "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
+            "EPSG:2154",
+            "+proj=lcc +lat_1=49 +lat_2=44 +lat_0=46.5 +lon_0=3 +x_0=700000 +y_0=6600000 +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +units=m +no_defs"
         );
 
         const [longitude, latitude] = proj4("EPSG:2154", "EPSG:4326", [
           lat,
           lng,
         ]);
+
         return (
-          <Circle
-            key={doctor.siret}
-            center={[latitude, longitude]}
-            radius={15}
-            color="red"
-          ></Circle>
+            <Circle
+                key={doctor.siret}
+                center={[latitude, longitude]}
+                radius={25}
+                color="red"
+                eventHandlers={{
+                  click: () => handleCircleClick(doctor.siret),
+                }}
+            >
+
+                  <Popup>
+                    {doctorData[doctor.siret] ? (
+                      <div>
+                        {doctorData[doctor.siret].nom && (
+                            <>
+                              <strong> Nom : </strong> {doctorData[doctor.siret].nom} {doctorData[doctor.siret].prenom}
+                              <br/>
+                            </>
+                        )}
+
+                        {doctorData[doctor.siret].designation && (
+                            <>
+                              <strong> Désignation : </strong> {doctorData[doctor.siret].designation}
+                              <br/>
+                            </>
+                        )}
+                        {doctorData[doctor.siret].adresse && (
+                            <>
+                              <strong> Adresse : </strong> {doctorData[doctor.siret].adresse}
+                            </>
+                        )}
+
+                      </div>
+                    ) : <span>Chargement en cours...</span> }
+                  </Popup>
+
+            </Circle>
         );
       }
+      return null;
     });
   }
 
@@ -121,12 +176,12 @@ export function Home() {
           if (layer instanceof L.Polygon) {
             const latLngs = layer.getLatLngs() as L.LatLng[][];
             const flatLatLngs = latLngs
-              .flat()
-              .map((latlng) => [latlng.lng, latlng.lat]);
+                .flat()
+                .map((latlng) => [latlng.lng, latlng.lat]);
 
             if (
-              flatLatLngs.length > 0 &&
-              flatLatLngs[0] !== flatLatLngs[flatLatLngs.length - 1]
+                flatLatLngs.length > 0 &&
+                flatLatLngs[0] !== flatLatLngs[flatLatLngs.length - 1]
             ) {
               flatLatLngs.push(flatLatLngs[0]);
             }
@@ -161,12 +216,6 @@ export function Home() {
             Code postal: {selectedCity.codesPostaux.join(", ")}
             <br />
             Nombre de docteurs: {doctors.filter((doctor) => doctor.codeCommune === selectedCity.code).length}
-            Nombre de docteurs:{" "}
-            {
-              doctors.filter(
-                (doctor) => doctor.codeCommune === selectedCity.code
-              ).length
-            }
           </div>
         </Tooltip>
       </Marker>
@@ -175,11 +224,7 @@ export function Home() {
 
   return (
     <header>
-      <section style={{ display: "flex", flexDirection: "row" }}>
-        <div>
-          <h1>Informations de la ville sélectionnée :</h1>
-          <pre>{JSON.stringify(selectedCity, null, 2)}</pre>
-        </div>
+      <section>
         <div style={{ height: "100vh", width: "100%" }}>
           <MapContainer
             center={[46.813744, 1.693057]}
@@ -198,4 +243,4 @@ export function Home() {
       </section>
     </header>
   );
-}
+  }
