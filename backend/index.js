@@ -1,10 +1,21 @@
 const express = require('express');
+const swaggerView = require('./swagger');
+const doctorsRouter = require('./src/routes/doctors');
+const municipalitiesRouter = require('./src/routes/municipalities');
 const app = express();
 const port = 3000;
+const cors = require('cors');
 
-app.get('/', (req, res) => {
-    res.send('Hello World!');
-});
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true
+}));
+
+app.use('/api/doctors', doctorsRouter);
+app.use('/api/municipalities', municipalitiesRouter);
+
+app.use("/api", swaggerView);
 
 app.listen(port, () => {
     console.log(`Serveur démarré sur http://localhost:${port}`);
