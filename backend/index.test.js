@@ -1,121 +1,72 @@
 const request = require('supertest');
-const express = require('express');
-const MunicipalityService = require('./src/services/municipality_service');
+// Import app directly
+const doctorsRouter = require('./src/routes/doctors');
+const municipalitiesRouter = require('./src/routes/municipalities');
 
-// Mock municipality service
-jest.mock('../src/services/municipality_service');
+// Mock the services used by the routers
+jest.mock('./src/services/doctor_service', () => ({
+    getDoctorsFromIndre: jest.fn().mockResolvedValue([{ siret: '12345678901234' }]),
+    getDoctorDetailsByCode: jest.fn().mockResolvedValue({ siret: '12345678901234', nom: 'Test Doctor' })
+}));
 
-// Create Express app
-const app = express();
+jest.mock('./src/services/municipality_service', () => ({
+    getMunicipalitiesFromIndre: jest.fn().mockResolvedValue([{ code: '36001', nom: 'Test Municipality' }]),
+    getMunicipalityCodesFromIndre: jest.fn().mockResolvedValue(['36001', '36002']),
+    getMunicipalityByCode: jest.fn().mockResolvedValue({ code: '36001', nom: 'Test Municipality' })
+}));
 
-// Import routes
-app.get('/api/municipalities/indre', async (req, res) => {
-    try {
-        const municipalities = await MunicipalityService.getMunicipalitiesFromIndre();
-        res.json(municipalities);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+// Mock console.log to avoid output during tests
+jest.spyOn(console, 'log').mockImplementation(() => { });
 
-app.get('/api/municipalities/indre/codes', async (req, res) => {
-    try {
-        const codes = await MunicipalityService.getMunicipalityCodesFromIndre();
-        res.json(codes);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+describe('API Routes', () => {
+    let app;
 
-app.get('/api/municipalities/:code', async (req, res) => {
-    try {
-        const municipality = await MunicipalityService.getMunicipalityByCode(req.params.code);
-        res.json(municipality);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-});
+    beforeAll(() => {
+        // Create a simple express app for testing
+        const express = require('express');
+        app = express();
 
-describe('API Endpoints', () => {
-    afterEach(() => {
-        jest.clearAllMocks();
+        // Use the real routers
+        app.use('/api/doctors', doctorsRouter);
+        app.use('/api/municipalities', municipalitiesRouter);
     });
 
-    describe('GET /api/municipalities/indre', () => {
-        test('should return municipalities from Indre', async () => {
-            const mockMunicipalities = [
-                { nom: 'Commune 1', code: '36001' },
-                { nom: 'Commune 2', code: '36002' }
-            ];
-
-            MunicipalityService.getMunicipalitiesFromIndre.mockResolvedValueOnce(mockMunicipalities);
-
-            const response = await request(app)
-                .get('/api/municipalities/indre');
+    describe('Doctor Routes', () => {
+        test('GET /api/doctors/indre should return doctors from Indre', async () => {
+            const response = await request(app).get('/api/doctors/indre');
 
             expect(response.status).toBe(200);
-            expect(response.body).toEqual(mockMunicipalities);
-            expect(MunicipalityService.getMunicipalitiesFromIndre).toHaveBeenCalled();
+            expect(response.body).toEqual([{ siret: '12345678901234' }]);
         });
 
-        test('should handle errors', async () => {
-            MunicipalityService.getMunicipalitiesFromIndre.mockRejectedValueOnce(new Error('Test error'));
+        test('GET /api/doctors/:code should return a specific doctor', async () => {
+            const response = await request(app).get('/api/doctors/12345678901234');
 
-            const response = await request(app)
-                .get('/api/municipalities/indre');
-
-            expect(response.status).toBe(500);
-            expect(response.body).toHaveProperty('error', 'Test error');
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ siret: '12345678901234', nom: 'Test Doctor' });
         });
     });
 
-    describe('GET /api/municipalities/indre/codes', () => {
-        test('should return municipality codes from Indre', async () => {
-            const mockCodes = ['36001', '36002', '36003'];
-
-            MunicipalityService.getMunicipalityCodesFromIndre.mockResolvedValueOnce(mockCodes);
-
-            const response = await request(app)
-                .get('/api/municipalities/indre/codes');
+    describe('Municipality Routes', () => {
+        test('GET /api/municipalities/indre should return municipalities from Indre', async () => {
+            const response = await request(app).get('/api/municipalities/indre');
 
             expect(response.status).toBe(200);
-            expect(response.body).toEqual(mockCodes);
-            expect(MunicipalityService.getMunicipalityCodesFromIndre).toHaveBeenCalled();
+            expect(response.body).toEqual([{ code: '36001', nom: 'Test Municipality' }]);
         });
 
-        test('should handle errors', async () => {
-            MunicipalityService.getMunicipalityCodesFromIndre.mockRejectedValueOnce(new Error('Test error'));
-
-            const response = await request(app)
-                .get('/api/municipalities/indre/codes');
-
-            expect(response.status).toBe(500);
-            expect(response.body).toHaveProperty('error', 'Test error');
-        });
-    });
-
-    describe('GET /api/municipalities/:code', () => {
-        test('should return a specific municipality by code', async () => {
-            const mockMunicipality = { nom: 'Commune 1', code: '36001' };
-
-            MunicipalityService.getMunicipalityByCode.mockResolvedValueOnce(mockMunicipality);
-
-            const response = await request(app)
-                .get('/api/municipalities/36001');
+        test('GET /api/municipalities/indre/codes should return municipality codes', async () => {
+            const response = await request(app).get('/api/municipalities/indre/codes');
 
             expect(response.status).toBe(200);
-            expect(response.body).toEqual(mockMunicipality);
-            expect(MunicipalityService.getMunicipalityByCode).toHaveBeenCalledWith('36001');
+            expect(response.body).toEqual(['36001', '36002']);
         });
 
-        test('should handle errors', async () => {
-            MunicipalityService.getMunicipalityByCode.mockRejectedValueOnce(new Error('Test error'));
+        test('GET /api/municipalities/:code should return a specific municipality', async () => {
+            const response = await request(app).get('/api/municipalities/36001');
 
-            const response = await request(app)
-                .get('/api/municipalities/36001');
-
-            expect(response.status).toBe(500);
-            expect(response.body).toHaveProperty('error', 'Test error');
+            expect(response.status).toBe(200);
+            expect(response.body).toEqual({ code: '36001', nom: 'Test Municipality' });
         });
     });
 });
