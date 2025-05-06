@@ -1,0 +1,40 @@
+body {
+  font-family: 'Inter', sans-serif;
+  background-color: #111315;
+  margin: 0;
+}
+
+.action-container {
+  max-width: 800px;
+  margin: 2rem auto;
+  padding: 2rem;
+  background-color: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+}
+
+.action-container h1 {
+  text-align: center;
+  font-size: 2rem;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+.action-block {
+  margin-bottom: 1.5rem;
+}
+
+.action-block h2 {
+  color: #004aad;
+  margin-bottom: 0.5rem;
+  font-size: 1.25rem;
+}
+
+.action-block ul {
+  padding-left: 1.5rem;
+}
+
+.action-block li {
+  margin-bottom: 0.3rem;
+  color: #555;
+}
