@@ -4,6 +4,7 @@ import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import { Navbar } from "./components/navbar/Navbar.tsx";
 import { routes } from "./routes.tsx";
 import { NotFound } from "./pages/NotFound.tsx";
+import MunicipalityDetail from './pages/MunicipalityDetail.tsx';
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           )
         })}
         <Route path="*" element={<NotFound />} />
+        <Route path="/municipalities/:id" element={<MunicipalityDetail />} />
       </Routes>
     </Router>
   )

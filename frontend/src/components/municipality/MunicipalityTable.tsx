@@ -1,13 +1,27 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { MunicipalityTableProps } from '../../interfaces/MunicipalityTableProps';
 import Spinner from '../loader/Spinner';
 
 const MunicipalityTable: React.FC<MunicipalityTableProps> = ({
     municipalities,
     isLoading = false,
-    error
+    error,
+    onError
 }) => {
     const [search, setSearch] = useState('');
+    const navigate = useNavigate();
+
+    const handleMunicipalityClick = (municipalityId: number | string) => {
+        try {
+            navigate(`/municipalities/${municipalityId}`);
+        } catch (err) {
+            console.error('Navigation error:', err);
+            if (onError) {
+                onError(err instanceof Error ? err.message : 'Une erreur de navigation est survenue');
+            }
+        }
+    };
 
     // Filtrage sur toutes les propriétés principales de la commune
     const filteredMunicipalities = municipalities.filter((municipality) => {
@@ -33,7 +47,18 @@ const MunicipalityTable: React.FC<MunicipalityTableProps> = ({
     }
 
     if (error) {
-        return <div className="flash fg-danger">Une erreur est survenue : {error}</div>;
+        return (
+            <div className="flash flash-error color-fg-danger" style={{ padding: '1rem', borderRadius: '5px', marginBottom: '1rem' }}>
+                <h4>Une erreur est survenue :</h4>
+                <p>{error.includes('JSON.parse') ? 'Erreur de format de données reçues du serveur.' : error}</p>
+                <button
+                    className="btn btn-sm btn-primary mt-2"
+                    onClick={() => window.location.reload()}
+                >
+                    Rafraîchir la page
+                </button>
+            </div>
+        );
     }
 
     if (!municipalities || municipalities.length === 0) {
@@ -71,7 +96,9 @@ const MunicipalityTable: React.FC<MunicipalityTableProps> = ({
                         style={{
                             minWidth: 0,
                             boxSizing: 'border-box',
+                            cursor: 'pointer',
                         }}
+                        onClick={() => handleMunicipalityClick(municipality.code)}
                     >
                         <header>
                             <h3 className="bold">
