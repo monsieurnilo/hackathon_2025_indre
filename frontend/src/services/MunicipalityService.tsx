@@ -1,10 +1,26 @@
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import type { Municipality } from '../interfaces/Municipality';
 
 class MunicipalityService {
     private static baseUrl = typeof process !== 'undefined' && process.env.REACT_APP_API_URL
         ? process.env.REACT_APP_API_URL
         : 'http://localhost:3000/api';
+
+    /**
+     * Handle JSON parse errors
+     * @param {Error} error The error to handle
+     * @returns {Error} A formatted error
+     */
+    private static handleJsonParseError(error: any): Error {
+        if (error instanceof AxiosError) {
+            if (error.message.includes('JSON.parse') ||
+                (error.response && error.response.status === 200 && error.message.includes('unexpected character'))) {
+                console.error('JSON parsing error:', error);
+                return new Error('Invalid JSON response from server. Please try again later.');
+            }
+        }
+        return error;
+    }
 
     /**
      * Get all municipalities from Indre
@@ -16,7 +32,7 @@ class MunicipalityService {
             return response.data;
         } catch (error) {
             console.error('Error fetching municipalities from Indre:', error);
-            throw new Error('Failed to fetch municipalities from Indre');
+            throw this.handleJsonParseError(error) || new Error('Failed to fetch municipalities from Indre');
         }
     }
 
@@ -30,7 +46,7 @@ class MunicipalityService {
             return response.data;
         } catch (error) {
             console.error('Error fetching municipality codes from Indre:', error);
-            throw new Error('Failed to fetch municipality codes from Indre');
+            throw this.handleJsonParseError(error) || new Error('Failed to fetch municipality codes from Indre');
         }
     }
 
@@ -45,7 +61,7 @@ class MunicipalityService {
             return response.data;
         } catch (error) {
             console.error(`Error fetching municipality with code ${code}:`, error);
-            throw new Error(`Failed to fetch municipality with code ${code}`);
+            throw this.handleJsonParseError(error) || new Error(`Failed to fetch municipality with code ${code}`);
         }
     }
 }

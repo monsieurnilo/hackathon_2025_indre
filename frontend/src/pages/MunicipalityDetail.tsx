@@ -13,8 +13,7 @@ const MunicipalityDetail: React.FC = () => {
         const fetchMunicipality = async () => {
             try {
                 setIsLoading(true);
-                // Remplacez par l'appel API réel
-                const response = await fetch(`/api/municipalities/${id}`);
+                const response = await fetch(`http://localhost:3000/api/municipalities/${id}`);
                 if (!response.ok) {
                     throw new Error('Impossible de récupérer les détails de la commune');
                 }
