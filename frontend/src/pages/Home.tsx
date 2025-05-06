@@ -7,7 +7,11 @@ import {
   Tooltip,
   Circle,
 } from "react-leaflet";
-import type { GeoJsonObject } from "geojson";
+import type {
+  Feature,
+  FeatureCollection,
+  GeoJsonObject,
+} from "geojson";
 import L from "leaflet";
 import * as turf from "@turf/turf";
 import proj4 from "proj4";
@@ -18,6 +22,7 @@ import type { BaseDoctor } from "../interfaces/BaseDoctor.ts";
 
 export function Home() {
   const geoJsonData: GeoJsonObject = indreGeoJson as GeoJsonObject;
+  console.log(geoJsonData);
 
   //City selected by the user on the map
   const [selectedCity, setSelectedCity] =
@@ -26,15 +31,57 @@ export function Home() {
   const [position, setPosition] = useState<L.LatLng | null>(null);
 
   const [doctors, setDoctors] = useState<BaseDoctor[]>([]);
+  const [municipalitiesProperties, setMunicipalitiesProperties] = useState<
+    { nbDoctors: number; code: string; density: number }[]
+  >([]);
 
   useEffect(() => {
     fetchDoctors();
   }, []);
 
+  useEffect(() => {
+    const computeMunicipalitiesProperties = () => {
+      setMunicipalitiesProperties(
+        (geoJsonData as FeatureCollection).features.map((feature) => {
+          const featureProperties = feature.properties ?? {};
+          const doctorsCount = doctors.filter(
+            (doctor) => doctor.codeCommune === featureProperties.code
+          ).length;
+          return {
+            nbDoctors: doctorsCount,
+            code: featureProperties.code || '',
+            density: doctorsCount / (featureProperties.population || 1),
+          };
+        })
+      );
+    };
+
+    computeMunicipalitiesProperties();
+  }, [doctors, geoJsonData]);
+
   async function fetchDoctors() {
     const response = await fetch("http://localhost:3000/api/doctors/indre");
     const data = await response.json();
     setDoctors(data);
+  }
+
+  function style(feature: Feature | undefined) {
+    const maxDensity = municipalitiesProperties.reduce(
+      (acc, cur) => acc > cur.density ? acc : cur.density,
+      0
+    );
+    const value = municipalitiesProperties.find(
+      (municipality) => municipality.code === feature?.properties?.code
+    )?.density;
+
+    return {
+      fillColor: "blue",
+      weight: 2,
+      opacity: 1,
+      color: "grey",
+      dashArray: "3",
+      fillOpacity: Math.min(0.1 + ((value ? value : 0) / maxDensity), 0.9),
+    };
   }
 
   function DoctorsPoints({ doctors }: { doctors: BaseDoctor[] }) {
@@ -114,6 +161,12 @@ export function Home() {
             Code postal: {selectedCity.codesPostaux.join(", ")}
             <br />
             Nombre de docteurs: {doctors.filter((doctor) => doctor.codeCommune === selectedCity.code).length}
+            Nombre de docteurs:{" "}
+            {
+              doctors.filter(
+                (doctor) => doctor.codeCommune === selectedCity.code
+              ).length
+            }
           </div>
         </Tooltip>
       </Marker>
@@ -137,7 +190,7 @@ export function Home() {
               attribution="© OpenStreetMap contributors, © CartoDB"
               url="http://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png"
             />
-            <GeoJSON data={geoJsonData} />
+            <GeoJSON data={geoJsonData} style={style} />
             <DoctorsPoints doctors={doctors} />
             <LocationMarker />
           </MapContainer>
