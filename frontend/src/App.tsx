@@ -1,4 +1,6 @@
 import './App.css'
+import 'leaflet/dist/leaflet.css'
+// import 'leaflet-defaulticon-compatibility/dist/leaflet-defaulticon-compatibility.css'
 import { Route, Routes, BrowserRouter as Router } from "react-router-dom";
 import { Home } from "./pages/Home.tsx";
 import { About } from "./pages/About.tsx";
