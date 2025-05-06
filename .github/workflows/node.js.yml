@@ -2,13 +2,13 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
   pull_request:
-    branches: [ "main" ]
+    branches: [ "main", "dev" ]
 
 jobs:
-  build:
-
+  build_and_test:
+    if: github.ref == 'refs/heads/dev'  # Condition pour dev
     runs-on: ubuntu-latest
 
     strategy:
@@ -57,3 +57,23 @@ jobs:
     - name: Test frontend
       working-directory: ./frontend
       run: npm test
+
+  deploy:
+    if: github.ref == 'refs/heads/main'  # Condition pour main
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Setup Node.js for deployment
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: backend/package-lock.json
+
+    # Ajoute ici les étapes spécifiques au déploiement
+    - name: Deploy application
+      run: |
+        echo "Deploying to production environment..."
+        # Commandes de déploiement (e.g., `npm run deploy` ou autre)
