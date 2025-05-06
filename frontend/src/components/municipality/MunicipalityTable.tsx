@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { MunicipalityTableProps } from '../../interfaces/MunicipalityTableProps';
 import Spinner from '../loader/spinner';
 
@@ -8,6 +9,11 @@ const MunicipalityTable: React.FC<MunicipalityTableProps> = ({
     error
 }) => {
     const [search, setSearch] = useState('');
+    const navigate = useNavigate();
+
+    const handleMunicipalityClick = (municipalityId: number | string) => {
+        navigate(`/municipalities/${municipalityId}`);
+    };
 
     // Filtrage sur toutes les propriétés principales de la commune
     const filteredMunicipalities = municipalities.filter((municipality) => {
@@ -71,7 +77,9 @@ const MunicipalityTable: React.FC<MunicipalityTableProps> = ({
                         style={{
                             minWidth: 0,
                             boxSizing: 'border-box',
+                            cursor: 'pointer',
                         }}
+                        onClick={() => handleMunicipalityClick(municipality.code)}
                     >
                         <header>
                             <h3 className="bold">
