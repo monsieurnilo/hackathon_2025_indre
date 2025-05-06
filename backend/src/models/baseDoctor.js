@@ -1,6 +1,29 @@
 // File: doctor.js
 // Description: Model representing a French doctor/doctor
 
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    BaseDoctor:
+ *      type: object
+ *      properties:
+ *        siret:
+ *          type: string
+ *          description: Siret
+ *        codeCommune:
+ *          type: string
+ *          description: Commune code
+ *        coordonnees:
+ *          type: object
+ *          properties:
+ *            x:
+ *              type: string
+ *              description: X coordonnee
+ *            y:
+ *              type: string
+ *              description: Y coordonnee
+ */
 class BaseDoctor {
   /**
    * Create a Doctor instance

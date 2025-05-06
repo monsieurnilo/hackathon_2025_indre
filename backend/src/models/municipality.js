@@ -1,6 +1,39 @@
 // File: commune.js
 // Description: Model representing a French commune/municipality
 
+
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    Municipality:
+ *      type: object
+ *      properties:
+ *        nom:
+ *          type: string
+ *          description: Nom
+ *        code:
+ *          type: string
+ *          description: Code
+ *        codeDepartement:
+ *          type: string
+ *          description: Code departement
+ *        siren:
+ *          type: string
+ *          description: Siren
+ *        codeEpci:
+ *          type: string
+ *          description: Code EPCI
+ *        codeRegion:
+ *          type: string
+ *          description: Code region
+ *        codesPostaux:
+ *          type: array
+ *          description: Codes postaux
+ *        population:
+ *          type: number
+ *          description: Population
+ */
 class Municipality {
     /**
      * Create a Commune instance

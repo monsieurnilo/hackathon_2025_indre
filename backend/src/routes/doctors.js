@@ -18,13 +18,7 @@ const router = express.Router();
  *             schema:
  *               type: array
  *               items:
- *                 $ref: '#/components/schemas/Doctor'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *                 $ref: '#/components/schemas/BaseDoctor'
  */
 router.get('/indre', async (req, res) => {
   try {
@@ -56,13 +50,7 @@ router.get('/indre', async (req, res) => {
  *         content:
  *           application/json:
  *             schema:
- *               $ref: '#/components/schemas/Doctor'
- *       500:
- *         description: Internal server error
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/Error'
+ *               $ref: '#/components/schemas/DoctorDetails'
  */
 router.get('/:code', async (req, res) => {
   try {

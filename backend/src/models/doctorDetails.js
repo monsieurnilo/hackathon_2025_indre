@@ -1,6 +1,44 @@
 // File: doctorDetails.js
 // Description: Model representing a French doctorDetails/doctorDetails
 
+/**
+ * @swagger
+ * components:
+ *  schemas:
+ *    DoctorDetails:
+ *      type: object
+ *      properties:
+ *        nom:
+ *          type: string
+ *          description: Nom
+ *        siret:
+ *          type: string
+ *          description: Siret
+ *        codeCommune:
+ *          type: string
+ *          description: Commune code
+ *        coordonnees:
+ *          type: object
+ *          properties:
+ *            x:
+ *              type: string
+ *              description: X coordonnee
+ *            y:
+ *              type: string
+ *              description: Y coordonnee
+ *        adresse:
+ *          type: string
+ *          description: Adresse
+ *        denomination:
+ *          type: string
+ *          description: Denomination
+ *        prenom:
+ *          type: string
+ *          description: Prenom
+ *        creationEtablissement:
+ *          type: string
+ *          description: Creation etablissement
+ */
 class DoctorDetails {
   /**
    * Create a DoctorDetails instance
