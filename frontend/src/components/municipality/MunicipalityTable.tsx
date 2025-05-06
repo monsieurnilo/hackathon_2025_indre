@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import type { MunicipalityTableProps } from '../../interfaces/MunicipalityTableProps';
-import Spinner from '../loader/spinner';
+import Spinner from '../loader/Spinner';
 
 const MunicipalityTable: React.FC<MunicipalityTableProps> = ({
     municipalities,
