@@ -6,6 +6,7 @@ import * as turf from "@turf/turf";
 import indreGeoJson from "../../data/indre.geo.json";
 import type {GeoFeaturePropertiesType} from "../types/GeoFeaturePropertiesType.ts";
 import {useState} from "react";
+import {Navbar} from "../components/navbar/Navbar.tsx";
 
 export function Home() {
     const geoJsonData: GeoJsonObject = indreGeoJson as GeoJsonObject;
@@ -84,6 +85,5 @@ export function Home() {
             </section>
 
         </header>
-
     );
 }
