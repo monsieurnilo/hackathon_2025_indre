@@ -1,4 +1,4 @@
-import {GeoJSON, MapContainer, Marker, Popup, TileLayer, useMapEvents} from "react-leaflet";
+import {GeoJSON, MapContainer, Marker, Popup, TileLayer, Tooltip, useMapEvents} from "react-leaflet";
 import type {GeoJsonObject} from "geojson";
 import L from "leaflet";
 import * as turf from "@turf/turf";
@@ -6,6 +6,7 @@ import * as turf from "@turf/turf";
 import indreGeoJson from "../../data/indre.geo.json";
 import type {GeoFeaturePropertiesType} from "../types/GeoFeaturePropertiesType.ts";
 import {useState} from "react";
+import {Navbar} from "../components/navbar/Navbar.tsx";
 
 export function Home() {
     const geoJsonData: GeoJsonObject = indreGeoJson as GeoJsonObject;
@@ -51,7 +52,7 @@ export function Home() {
 
         return position === null || selectedCity === null ? null : (
             <Marker position={position}>
-                <Popup>
+                <Tooltip permanent>
                     <div>
                         <strong>{selectedCity.nom}</strong>
                         <br />
@@ -59,7 +60,7 @@ export function Home() {
                         <br />
                         Code postal: {selectedCity.codesPostaux.join(", ")}
                     </div>
-                </Popup>
+                </Tooltip>
             </Marker>
         );
     }
@@ -84,6 +85,5 @@ export function Home() {
             </section>
 
         </header>
-
     );
 }
