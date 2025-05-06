@@ -28,7 +28,6 @@ const MunicipalityPage: React.FC = () => {
 
     return (
         <div className="municipality-page">
-            <h1>Municipalities</h1>
             <MunicipalityTable
                 municipalities={municipalities}
                 isLoading={isLoading}

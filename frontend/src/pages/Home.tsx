@@ -160,6 +160,7 @@ export function Home() {
             <br />
             Code postal: {selectedCity.codesPostaux.join(", ")}
             <br />
+            Nombre de docteurs: {doctors.filter((doctor) => doctor.codeCommune === selectedCity.code).length}
             Nombre de docteurs:{" "}
             {
               doctors.filter(
