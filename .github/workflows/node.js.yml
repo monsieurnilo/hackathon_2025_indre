@@ -76,4 +76,3 @@ jobs:
     - name: Deploy application
       run: |
         echo "Deploying to production environment..."
-        docker-compose up --build
