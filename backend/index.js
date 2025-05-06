@@ -1,5 +1,6 @@
 const express = require('express');
 const MunicipalityService = require('./src/services/municipality_service');
+const swaggerView = require('./swagger');
 const app = express();
 const port = 3000;
 const cors = require('cors');
@@ -39,6 +40,8 @@ app.get('/api/municipalities/:code', async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 });
+
+app.use("/api", swaggerView);
 
 app.listen(port, () => {
     console.log(`Serveur démarré sur http://localhost:${port}`);
